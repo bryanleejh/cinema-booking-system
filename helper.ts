@@ -8,10 +8,19 @@ export function parseSeatPosition(
   input: string
 ): { row: number; col: number } | null {
   input = input.trim().toUpperCase();
-  if (!/^[A-Z]\d+$/.test(input)) return null;
-  const row = input.charAt(0).charCodeAt(0) - 65;
-  const col = parseInt(input.slice(1)) - 1;
-  return { row, col };
+
+  // Validate row (should be a single letter A-Z)
+  const rowMatch = /^[A-Z]$/.test(input.charAt(0));
+  if (!rowMatch) return null;
+
+  const row = input.charCodeAt(0) - 65; // Convert letter to index (A = 0, B = 1, ..., Z = 25)
+
+  // Validate column (should be digits following the row letter)
+  const col = parseInt(input.slice(1));
+  if (isNaN(col) || col < 1 || col > 50) return null;
+
+  // Return the parsed seat position
+  return { row, col: col - 1 }; // Convert column to 0-based index
 }
 
 // Helper: Find contiguous segments of available seats ('.') in a row.

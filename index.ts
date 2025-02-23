@@ -53,13 +53,13 @@ class Cinema {
   // Display full seating map (rows printed in reverse order so that row A appears at the bottom).
   displaySeatingMap(): void {
     console.log("\nSCREEN");
-    console.log("-".repeat(this.seatsPerRow * 2 + 3));
+    console.log("- ".repeat(this.seatsPerRow));
     for (let r = this.rows - 1; r >= 0; r--) {
       const rowLabel = rowLetter(r);
       const seatsStr = this.seatingMap[r].join("  ");
       console.log(`${rowLabel} ${seatsStr}`);
     }
-    let seatNums = "   ";
+    let seatNums = "  ";
     for (let i = 1; i <= this.seatsPerRow; i++) {
       seatNums += i.toString().padStart(2, " ") + " ";
     }
