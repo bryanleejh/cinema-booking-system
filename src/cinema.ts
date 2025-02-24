@@ -156,6 +156,12 @@ export class Cinema {
     let remaining = numSeats;
     const allocation: Seat[] = [];
     const rowArr = this.seatingMap[startRow];
+
+    console.log(
+      `Starting manual allocation at row ${startRow}, col ${startCol}`
+    );
+    console.log("Row before allocation:", rowArr);
+
     let c = startCol;
     while (c < this.seatsPerRow && rowArr[c] !== ".") {
       c++;
@@ -166,10 +172,12 @@ export class Cinema {
       c++;
     }
     for (let r = startRow + 1; r < this.rows && remaining > 0; r++) {
+      console.log(`Checking row ${r} for overflow:`, this.seatingMap[r]);
       const seatsFromRow = this.allocateDefaultSeatsInRow(r, remaining);
       allocation.push(...seatsFromRow);
       remaining -= seatsFromRow.length;
     }
+    console.log("Final Allocation:", allocation);
     return allocation;
   }
 
