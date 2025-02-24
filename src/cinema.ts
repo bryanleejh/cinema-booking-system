@@ -1,5 +1,5 @@
-import { Booking, Seat } from ".";
 import { rowLetter, findContiguousSegments } from "./helper";
+import { Booking, Seat } from "./types";
 
 // Cinema class encapsulating seating and booking logic.
 export class Cinema {

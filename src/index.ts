@@ -1,39 +1,23 @@
 import * as readline from "readline";
 import { parseSeatPosition } from "./helper";
 import { Cinema } from "./cinema";
+import {
+  cinema,
+  currentState,
+  AppState,
+  currentNumTickets,
+  currentProvisionalAllocation,
+  currentBookingId,
+  setCinema,
+  setCurrentState,
+  setCurrentNumTickets,
+  setCurrentProvisionalAllocation,
+  setCurrentBookingId,
+} from "./appState";
 
 // Maximum limits
 const MAX_ROWS = 26;
 const MAX_SEATS_PER_ROW = 50;
-
-// A seat is defined by its row and column index (0-indexed)
-export interface Seat {
-  row: number;
-  col: number;
-}
-
-// A booking holds the booking id, movie title, and the list of seats confirmed.
-export interface Booking {
-  id: string;
-  movieTitle: string;
-  seats: Seat[];
-}
-
-// Define application states.
-enum AppState {
-  INIT,
-  MAIN_MENU,
-  BOOKING_FLOW,
-  OVERRIDE_FLOW,
-  CHECK_BOOKING,
-  EXIT,
-}
-
-let currentState: AppState = AppState.INIT;
-let cinema: Cinema | null = null;
-let currentNumTickets: number = 0;
-let currentBookingId: string = "";
-let currentProvisionalAllocation: Seat[] = [];
 
 // Create readline interface.
 const rl = readline.createInterface({
@@ -64,8 +48,8 @@ function handleInit(input: string): void {
   const movieTitle = parts[0];
   const rows = Math.min(parseInt(parts[1]), MAX_ROWS);
   const seatsPerRow = Math.min(parseInt(parts[2]), MAX_SEATS_PER_ROW);
-  cinema = new Cinema(movieTitle, rows, seatsPerRow);
-  currentState = AppState.MAIN_MENU;
+  setCinema(new Cinema(movieTitle, rows, seatsPerRow));
+  setCurrentState(AppState.MAIN_MENU);
   displayMainMenu();
 }
 
@@ -89,19 +73,19 @@ function handleMainMenu(input: string): void {
   const selection = input.trim();
   switch (selection) {
     case "1":
-      currentState = AppState.BOOKING_FLOW;
+      setCurrentState(AppState.BOOKING_FLOW);
       promptUser(
         "\nEnter number of tickets to book, or enter blank to go back to main menu:\n> "
       );
       break;
     case "2":
-      currentState = AppState.CHECK_BOOKING;
+      setCurrentState(AppState.CHECK_BOOKING);
       promptUser(
         "\nEnter booking id, or enter blank to go back to main menu:\n> "
       );
       break;
     case "3":
-      currentState = AppState.EXIT;
+      setCurrentState(AppState.EXIT);
       rl.close();
       break;
     default:
@@ -116,7 +100,7 @@ function handleBookingFlow(input: string): void {
   if (!cinema) return;
   const trimmed = input.trim();
   if (trimmed === "") {
-    currentState = AppState.MAIN_MENU;
+    setCurrentState(AppState.MAIN_MENU);
     displayMainMenu();
     return;
   }
@@ -136,18 +120,18 @@ function handleBookingFlow(input: string): void {
     );
     return;
   }
-  currentNumTickets = numTickets;
+  setCurrentNumTickets(numTickets);
   // Allocate default seats provisionally.
-  currentProvisionalAllocation = cinema.allocateDefaultSeats(numTickets);
+  setCurrentProvisionalAllocation(cinema.allocateDefaultSeats(numTickets));
   cinema.markProvisional(currentProvisionalAllocation);
-  currentBookingId = cinema.generateBookingId();
+  setCurrentBookingId(cinema.generateBookingId());
   console.log(
     `\nSuccessfully reserved ${numTickets} ${cinema.movieTitle} tickets.`
   );
   console.log(`Booking id: ${currentBookingId}`);
   console.log("Selected seats:");
   cinema.displaySeatingMap();
-  currentState = AppState.OVERRIDE_FLOW;
+  setCurrentState(AppState.OVERRIDE_FLOW);
   promptUser(
     "Enter blank to accept seat selection, or enter new seating position:\n> "
   );
@@ -166,7 +150,7 @@ function handleOverrideFlow(input: string): void {
       movieTitle: cinema.movieTitle,
       seats: currentProvisionalAllocation,
     });
-    currentState = AppState.MAIN_MENU;
+    setCurrentState(AppState.MAIN_MENU);
     displayMainMenu();
     return;
   }
@@ -182,10 +166,8 @@ function handleOverrideFlow(input: string): void {
     );
     return;
   }
-  currentProvisionalAllocation = cinema.allocateManualSeats(
-    currentNumTickets,
-    pos.row,
-    pos.col
+  setCurrentProvisionalAllocation(
+    cinema.allocateManualSeats(currentNumTickets, pos.row, pos.col)
   );
   cinema.markProvisional(currentProvisionalAllocation);
   console.log(`\nBooking id: ${currentBookingId}`);
@@ -202,7 +184,7 @@ function handleCheckBooking(input: string): void {
   if (!cinema) return;
   const trimmed = input.trim();
   if (trimmed === "") {
-    currentState = AppState.MAIN_MENU;
+    setCurrentState(AppState.MAIN_MENU);
     displayMainMenu();
     return;
   }
