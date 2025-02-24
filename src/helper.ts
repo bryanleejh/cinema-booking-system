@@ -44,3 +44,8 @@ export function findContiguousSegments(
   }
   return segments;
 }
+
+// Helper: Output a prompt.
+export function promptUser(message: string): void {
+  process.stdout.write(message);
+}
