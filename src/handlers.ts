@@ -54,6 +54,7 @@ export function displayMainMenu(): void {
 export function handleMainMenu(input: string): void {
   if (!cinema) return;
   const selection = input.trim();
+  console.log(`Selection: ${selection}`);
   switch (selection) {
     case "1":
       setCurrentState(AppState.BOOKING_FLOW);
